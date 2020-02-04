@@ -1,14 +1,24 @@
 from flask import render_template, flash, redirect
 from app import app
-from app.forms import LoginForm
+from app.forms import LoginForm, DownloadForm
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/download', methods=['GET', 'POST'])
 def download():
-	form = LoginForm()
+	form = DownloadForm()
+	url = None
+	#x = form.validate()
 	if form.validate_on_submit():
+		#FIX THIS!
 		flash('Need download info')
-	return render_template('download.html', title='Download')
+		return redirect('/download')
+	if form.is_submitted():
+		if form.validate():
+			pass #TODO: Do the download
+			print("Download it!")
+		else:
+			flash("There was a problem")
+	return render_template('download.html', title='Download', form=form, url=url)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

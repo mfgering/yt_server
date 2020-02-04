@@ -7,7 +7,15 @@
       {% endif %}
     </head>
     <body>
-        <div>youtube-dl: <a href="/index">Home</a></div>
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}        <div>youtube-dl: <a href="/index">Home</a></div>
         <hr>
         {% block content %}{% endblock %}
     </body>

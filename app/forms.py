@@ -9,5 +9,5 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 class DownloadForm(FlaskForm):
-	url = StringField('URL', validators=[DataRequired()])
+	url = StringField('URL', validators=[DataRequired(message='URL is needed')])
 	submit = SubmitField('Submit')
