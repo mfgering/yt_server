@@ -1,4 +1,5 @@
 from flask import render_template, flash, redirect
+import downloader
 from app import app
 from app.forms import LoginForm, DownloadForm
 
@@ -7,9 +8,10 @@ from app.forms import LoginForm, DownloadForm
 @app.route('/download', methods=['GET', 'POST'])
 def download():
 	form = DownloadForm()
-	url = None
 	if form.validate_on_submit():
-		#TODO: Download
+		msg = downloader.Downloader.submit_download(form)
+		if msg is not None:
+			flash(msg)
 		return redirect('/download')
 	if len(form.errors) > 0:
 		flash("Please fix the problems and try again.")
