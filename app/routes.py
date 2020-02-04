@@ -3,17 +3,17 @@ from app import app
 from app.forms import LoginForm, DownloadForm
 
 @app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 @app.route('/download', methods=['GET', 'POST'])
 def download():
 	form = DownloadForm()
 	url = None
-	#x = form.validate()
 	if form.validate_on_submit():
 		#TODO: Download
 		return redirect('/download')
 	if len(form.errors) > 0:
-		flash("There was a problem")
-	return render_template('download.html', title='Download', form=form, url=url)
+		flash("Please fix the problems and try again.")
+	return render_template('download.html', title='Download', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
