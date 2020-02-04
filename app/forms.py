@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, URL
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -9,5 +9,5 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 class DownloadForm(FlaskForm):
-	url = StringField('URL', validators=[DataRequired(message='URL is needed')])
+	url = StringField('URL', validators=[DataRequired(message='URL is needed'), URL(message="Invalid URL")])
 	submit = SubmitField('Submit')

@@ -9,15 +9,10 @@ def download():
 	url = None
 	#x = form.validate()
 	if form.validate_on_submit():
-		#FIX THIS!
-		flash('Need download info')
+		#TODO: Download
 		return redirect('/download')
-	if form.is_submitted():
-		if form.validate():
-			pass #TODO: Do the download
-			print("Download it!")
-		else:
-			flash("There was a problem")
+	if len(form.errors) > 0:
+		flash("There was a problem")
 	return render_template('download.html', title='Download', form=form, url=url)
 
 @app.route('/login', methods=['GET', 'POST'])
