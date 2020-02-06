@@ -25,3 +25,13 @@ def login():
             form.username.data, form.remember_me.data))
 		return redirect('/index')
 	return render_template('login.html', title='Sign In', form=form)
+
+@app.route('/status', methods=['GET'])
+def status():
+	foo = [{'a': 1, 'z': 26}, {'a': 'bar', 'z': 'sss'}]
+	done_data = []
+	for job in downloader.Downloader.Done:
+		print(str(job))
+	return render_template("status.html", title="Status",
+		done=done_data,
+		downloader=downloader.Downloader, foo=foo)

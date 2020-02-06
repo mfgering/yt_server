@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Status</h1>
+    <ul>
+    {%for f in foo %}
+      <li>{{ f.a }}: {{ f.z }} </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
