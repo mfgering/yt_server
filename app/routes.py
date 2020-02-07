@@ -2,6 +2,7 @@ from flask import render_template, flash, redirect
 import downloader
 from app import app
 from app.forms import LoginForm, DownloadForm
+#TODO: Add link for download log details
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -22,7 +23,7 @@ def login():
 	form = LoginForm()
 	if form.validate_on_submit():
 		flash('Login requested for user {}, remember_me={}'.format(
-            form.username.data, form.remember_me.data))
+			form.username.data, form.remember_me.data))
 		return redirect('/index')
 	return render_template('login.html', title='Sign In', form=form)
 
@@ -46,16 +47,27 @@ def _get_thread_status(items):
 	result_data = []
 	for thrd in items:
 		j_data = {"url": thrd.url, "log": thrd.get_log()}
-		status = "not downloaded"
-		filename = "unknown"
-		total_bytes = 0
 		if thrd.progress is not None:
-			status = thrd.progress['status']
-			if status == 'finished':
-				filename = thrd.progress['filename']
-				total_bytes = thrd.progress['total_bytes']
-		j_data['status'] = status
-		j_data['filename'] = filename
-		j_data['total_bytes'] = total_bytes
+			j_data['ETA'] = thrd.progress.get('_eta_str', '')
+			j_data['Percent'] = thrd.progress.get('_percent_str', '')
+			j_data['Status'] = thrd.progress.get('status', '')
+			j_data['Filename'] = thrd.progress.get('filename', '')
+			j_data['Total Bytes'] = sizeof_fmt(thrd.progress.get('total_bytes', '0'), '')
+			j_data['Speed'] = thrd.progress.get('_speed_str', '')
 		result_data.append(j_data)
 	return result_data
+
+def sizeof_fmt(num, suffix='o'):
+	"""Readable file size
+
+	:param num: Bytes value
+	:type num: int
+	:param suffix: Unit suffix (optional) default = o
+	:type suffix: str
+	:rtype: str
+	"""
+	for unit in ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z']:
+		if abs(num) < 1024.0:
+			return "%3.1f %s%s" % (num, unit, suffix)
+		num /= 1024.0
+	return "%.1f%s%s" % (num, 'Yi', suffix)

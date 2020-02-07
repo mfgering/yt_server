@@ -1,24 +1,27 @@
 {% extends "base.html" %}
-{% macro dl_table(dl_items, css_class) %}
+{% block headblock %}
+    <script src="{{ url_for('static', filename='status.js') }}"></script>
+{% endblock %}
+{% macro dl_table(dl_items, css_class, extra_cols) %}
     <div class="{{css_class}}">
       <table>
         <thead>
           <tr>
             <th>URL</th>
-            <th>Status</th>
-            <th>Filename</th>
-            <th>Size</th>
+            {% for extra in extra_cols %}
+              <th>{{ extra }}</th>
+            {% endfor %}
           </tr>
         </thead>
         <tbody>
-          {%for j in dl_items%}
+          {% for j in dl_items %}
           <tr>
             <td>{{j.url|urlize}}</td>
-            <td>{{j.status}}</td>
-            <td>{{j.filename}}</td>
-            <td>{{ j.total_bytes|filesizeformat }}</td>
+            {% for extra in extra_cols %}
+              <th>{{ j[extra] }}</th>
+            {% endfor %}
           </tr>
-        {%endfor%}
+        {% endfor %}
         </tbody>
       </table>
     </div>
@@ -27,9 +30,9 @@
 {% block content %}
   <h1>Status</h1>
   <h2>Running</h2>
-    {{dl_table(context.running, 'dl-running')}}
+    {{dl_table(context.running, 'dl-running', ['ETA', 'Percent', 'Speed', 'Total Bytes'])}}
   <h2>Queued</h2>
-    {{dl_table(context.queued, 'dl-queued')}}
+    {{dl_table(context.queued, 'dl-queued', [])}}
   <h2>Done</h2>
-    {{dl_table(context.done, 'dl-done')}}
+    {{dl_table(context.done, 'dl-done', ['Filename', 'Total Bytes'])}}
 {%endblock%}

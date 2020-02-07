@@ -1,6 +1,8 @@
 <html>
     <head>
       <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+      {% block headblock %}{% endblock %}
+      <script src="{{ url_for('static', filename='app.js') }}"></script>
       {% if title %}
       <title>{{ title }}</title>
       {% else %}
