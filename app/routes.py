@@ -28,10 +28,34 @@ def login():
 
 @app.route('/status', methods=['GET'])
 def status():
-	foo = [{'a': 1, 'z': 26}, {'a': 'bar', 'z': 'sss'}]
-	done_data = []
-	for job in downloader.Downloader.Done:
-		print(str(job))
-	return render_template("status.html", title="Status",
-		done=done_data,
-		downloader=downloader.Downloader, foo=foo)
+	context = {}
+	context['done'] = _get_thread_status(downloader.Downloader.Done)
+	context['running'] = _get_thread_status(downloader.Downloader.Running)
+	context['queued'] = _get_thread_status(downloader.Downloader.Queue)
+	return render_template("status.html", title="Status", context=context)
+
+def _get_thread_status(items):
+	"""
+	{'_eta_str': '02:47:10', '_percent_str': '  0.0%', '_speed_str': '155.37KiB/s', 
+	'_total_bytes_estimate_str': '34.80MiB', 'downloaded_bytes': 1024, 
+	'elapsed': 0.2814369201660156, 'eta': 10030, 'filename': '//alpha.dawson/test...ation.mp4', 
+	'fragment_count': 101, 'fragment_index': 0, 'speed': 159096.43265668987, 'status': 
+	'downloading', 'tmpfilename': '//alpha.dawson/test....mp4.part', 
+	'total_bytes_estimate': 36494936.0}
+	"""
+	result_data = []
+	for thrd in items:
+		j_data = {"url": thrd.url, "log": thrd.get_log()}
+		status = "not downloaded"
+		filename = "unknown"
+		total_bytes = 0
+		if thrd.progress is not None:
+			status = thrd.progress['status']
+			if status == 'finished':
+				filename = thrd.progress['filename']
+				total_bytes = thrd.progress['total_bytes']
+		j_data['status'] = status
+		j_data['filename'] = filename
+		j_data['total_bytes'] = total_bytes
+		result_data.append(j_data)
+	return result_data

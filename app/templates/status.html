@@ -1,10 +1,35 @@
 {% extends "base.html" %}
+{% macro dl_table(dl_items, css_class) %}
+    <div class="{{css_class}}">
+      <table>
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th>Status</th>
+            <th>Filename</th>
+            <th>Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%for j in dl_items%}
+          <tr>
+            <td>{{j.url|urlize}}</td>
+            <td>{{j.status}}</td>
+            <td>{{j.filename}}</td>
+            <td>{{ j.total_bytes|filesizeformat }}</td>
+          </tr>
+        {%endfor%}
+        </tbody>
+      </table>
+    </div>
+{% endmacro %}
 
 {% block content %}
-    <h1>Status</h1>
-    <ul>
-    {%for f in foo %}
-      <li>{{ f.a }}: {{ f.z }} </li>
-    {% endfor %}
-  </ul>
-{% endblock %}
+  <h1>Status</h1>
+  <h2>Running</h2>
+    {{dl_table(context.running, 'dl-running')}}
+  <h2>Queued</h2>
+    {{dl_table(context.queued, 'dl-queued')}}
+  <h2>Done</h2>
+    {{dl_table(context.done, 'dl-done')}}
+{%endblock%}
