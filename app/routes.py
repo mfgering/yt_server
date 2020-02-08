@@ -1,3 +1,4 @@
+import jinja2.utils
 from flask import render_template, flash, redirect
 import downloader
 from app import app
@@ -46,7 +47,7 @@ def _get_thread_status(items):
 	"""
 	result_data = []
 	for thrd in items:
-		j_data = {"url": thrd.url, "log": thrd.get_log()}
+		j_data = {"URL": jinja2.utils.urlize(thrd.url, target="_blank")}
 		if thrd.progress is not None:
 			j_data['ETA'] = thrd.progress.get('_eta_str', '')
 			j_data['Percent'] = thrd.progress.get('_percent_str', '')
@@ -54,6 +55,7 @@ def _get_thread_status(items):
 			j_data['Filename'] = thrd.progress.get('filename', '')
 			j_data['Total Bytes'] = sizeof_fmt(thrd.progress.get('total_bytes', '0'), '')
 			j_data['Speed'] = thrd.progress.get('_speed_str', '')
+		j_data['Log'] = '<button class="log-button" type="button" value="{0}">Log</button>'.format(thrd.ident)
 		result_data.append(j_data)
 	return result_data
 
