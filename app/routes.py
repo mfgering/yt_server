@@ -1,9 +1,9 @@
 import jinja2.utils
+import jinja2.filters
 from flask import render_template, flash, redirect
 import downloader
 from app import app
 from app.forms import LoginForm, DownloadForm
-#TODO: Add link for download log details
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -36,6 +36,17 @@ def status():
 	context['queued'] = _get_thread_status(downloader.Downloader.Queue)
 	return render_template("status.html", title="Status", context=context)
 
+@app.route('/log/<thread_id>', methods=['GET'])
+def get_log(thread_id):
+	context = {'thread_id': thread_id, 'url': 'Unknown', 'log': 'Nothing logged'}
+	context['log'] = "Nothing logged"
+	for thrd in downloader.Downloader.Running+downloader.Downloader.Queue+downloader.Downloader.Done:
+		if str(thrd.ident) == thread_id:
+			context['log'] = thrd.get_log()
+			context['url'] = thrd.url
+			break
+	return render_template("log.html", title="Log", context=context)
+
 def _get_thread_status(items):
 	"""
 	{'_eta_str': '02:47:10', '_percent_str': '  0.0%', '_speed_str': '155.37KiB/s', 
@@ -48,28 +59,14 @@ def _get_thread_status(items):
 	result_data = []
 	for thrd in items:
 		j_data = {"URL": jinja2.utils.urlize(thrd.url, target="_blank")}
+		j_data['thread_id'] = thrd.ident
+		j_data['Log'] = '<a href="/log/{}" target="_blank">Log</a>'.format(thrd.ident)
 		if thrd.progress is not None:
 			j_data['ETA'] = thrd.progress.get('_eta_str', '')
 			j_data['Percent'] = thrd.progress.get('_percent_str', '')
 			j_data['Status'] = thrd.progress.get('status', '')
 			j_data['Filename'] = thrd.progress.get('filename', '')
-			j_data['Total Bytes'] = sizeof_fmt(thrd.progress.get('total_bytes', '0'), '')
+			j_data['Total Bytes'] = jinja2.filters.do_filesizeformat(thrd.progress.get('total_bytes', '0'))
 			j_data['Speed'] = thrd.progress.get('_speed_str', '')
-		j_data['Log'] = '<button class="log-button" type="button" value="{0}">Log</button>'.format(thrd.ident)
 		result_data.append(j_data)
 	return result_data
-
-def sizeof_fmt(num, suffix='o'):
-	"""Readable file size
-
-	:param num: Bytes value
-	:type num: int
-	:param suffix: Unit suffix (optional) default = o
-	:type suffix: str
-	:rtype: str
-	"""
-	for unit in ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z']:
-		if abs(num) < 1024.0:
-			return "%3.1f %s%s" % (num, unit, suffix)
-		num /= 1024.0
-	return "%.1f%s%s" % (num, 'Yi', suffix)

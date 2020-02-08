@@ -14,7 +14,7 @@
         </thead>
         <tbody>
           {% for j in dl_items %}
-          <tr>
+            <tr thread-id="{{ j['thread_id'] }}">
             {% for extra in cols %}
               <td>{{ j[extra]|safe }}</td>
             {% endfor %}
@@ -33,5 +33,4 @@
     {{dl_table(context.queued, 'dl-queued', ['URL'])}}
   <h2>Done</h2>
     {{dl_table(context.done, 'dl-done', ['URL', 'Filename', 'Total Bytes', 'Log'])}}
-
 {%endblock%}
