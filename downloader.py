@@ -16,6 +16,7 @@ class Downloader(object):
 		#TODO: Use https://www.pornhub.com/view_video.php?viewkey=ph599750d260673&pkey=130645252
 		ytdl_opts = {}
 		ytdl_opts['outtmpl'] = Config.OUTPUT_TEMPLATE
+		ytdl_opts['ffmpeg_location'] = Config.FFMPEG_LOCATION
 		url = form.url.data
 		thread = DownloadThread(Downloader.thread_callback, ytdl_opts, url)
 		Downloader.Queue.append(thread)

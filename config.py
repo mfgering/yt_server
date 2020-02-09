@@ -13,6 +13,6 @@ class Config(object):
 	SECRET_KEY = os.environ.get("SECRET_KEY") or "sske89822Jl..234BBB--=SSS298234"
 	MAX_CONCURRENT_DL = 3
 	FFMPEG_LOCATION = local_settings.FFMPEG_LOCATION
-	OUTPUT_TEMPLATE = "/media/yt/%(title)s.%(ext)s"
-	TEMPLATES_AUTO_RELOAD = False
+	OUTPUT_TEMPLATE = local_settings.OUTPUT_TEMPLATE
+	TEMPLATES_AUTO_RELOAD = local_settings.TEMPLATES_AUTO_RELOAD
 
