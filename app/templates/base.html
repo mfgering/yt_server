@@ -18,7 +18,20 @@
         {% endfor %}
         </ul>
       {% endif %}
-    {% endwith %}        <div>youtube-dl: <a href="/index">Home</a></div>
+      {% endwith %}
+        <div class="main-menu">
+          <ul>
+            <li class="main-menu-item">
+              <a href="/index">Home</a>
+            </li>
+            <li class="main-menu-item">
+              <a href="/download">Download</a>
+            </li>
+            <li class="main-menu-item">
+              <a href="/status">Status</a>
+            </li>
+          </ul>
+        </div>
         <hr>
         {% block content %}{% endblock %}
     </body>

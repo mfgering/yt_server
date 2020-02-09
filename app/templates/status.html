@@ -3,7 +3,10 @@
     <script src="{{ url_for('static', filename='status.js') }}"></script>
 {% endblock %}
 {% macro dl_table(dl_items, css_class, cols) %}
-    <div class="{{css_class}}">
+  <div class="{{css_class}}">
+    {% if dl_items|length == 0 %}
+      <p>Empty</p>
+    {% else %}
       <table>
         <thead>
           <tr>
@@ -22,15 +25,16 @@
         {% endfor %}
         </tbody>
       </table>
+    {% endif %}
     </div>
 {% endmacro %}
 
 {% block content %}
   <h1>Status</h1>
   <h2>Running</h2>
-    {{dl_table(context.running, 'dl-running', ['URL', 'ETA', 'Percent', 'Speed', 'Total Bytes', 'Log'])}}
+    {{ dl_table(context.running, 'dl-running', ['URL', 'ETA', 'Percent', 'Speed', 'Total Bytes', 'Log'])}}
   <h2>Queued</h2>
-    {{dl_table(context.queued, 'dl-queued', ['URL'])}}
+    {{ dl_table(context.queued, 'dl-queued', ['URL'])}}
   <h2>Done</h2>
-    {{dl_table(context.done, 'dl-done', ['URL', 'Filename', 'Total Bytes', 'Log'])}}
+    {{ dl_table(context.done, 'dl-done', ['URL', 'Filename', 'Total Bytes', 'Log'])}}
 {%endblock%}
