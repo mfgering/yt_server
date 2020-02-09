@@ -35,6 +35,12 @@
     {{ dl_table(context.running, 'dl-running', ['URL', 'ETA', 'Percent', 'Speed', 'Total Bytes', 'Log'])}}
   <h2>Queued</h2>
     {{ dl_table(context.queued, 'dl-queued', ['URL'])}}
+    {% if context.queued|length > 0 %}
+      <p><a href="/clear/queued">Clear all queued entries</a></p>
+    {% endif %}
   <h2>Done</h2>
     {{ dl_table(context.done, 'dl-done', ['URL', 'Filename', 'Total Bytes', 'Log'])}}
+    {% if context.done|length > 0 %}
+      <p><a href="/clear/done">Clear all Done entries</a></p>
+    {% endif %}
 {%endblock%}

@@ -13,6 +13,7 @@ class Downloader(object):
 	@classmethod
 	def submit_download(cls, form):
 		#TODO: Check, init ffmpeg_location option (using Config)
+		#TODO: Use https://www.pornhub.com/view_video.php?viewkey=ph599750d260673&pkey=130645252
 		ytdl_opts = {}
 		ytdl_opts['outtmpl'] = Config.OUTPUT_TEMPLATE
 		url = form.url.data

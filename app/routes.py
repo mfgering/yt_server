@@ -36,6 +36,14 @@ def status():
 	context['queued'] = _get_thread_status(downloader.Downloader.Queue)
 	return render_template("status.html", title="Status", context=context)
 
+@app.route('/clear/<arr_name>', methods=['GET'])
+def clear_array(arr_name):
+	if arr_name == "queued":
+		downloader.Downloader.Queue.clear()
+	elif arr_name == "done":
+		downloader.Downloader.Done.clear()
+	return redirect('/status')
+
 @app.route('/log/<thread_id>', methods=['GET'])
 def get_log(thread_id):
 	context = {'thread_id': thread_id, 'url': 'Unknown', 'log': 'Nothing logged'}
