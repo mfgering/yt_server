@@ -12,6 +12,7 @@ class Downloader(object):
 
 	@classmethod
 	def submit_download(cls, form):
+		#TODO: Check, init ffmpeg_location option (using Config)
 		ytdl_opts = {}
 		ytdl_opts['outtmpl'] = Config.OUTPUT_TEMPLATE
 		url = form.url.data
