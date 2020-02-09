@@ -1,3 +1,5 @@
 **/__pycache__
 env
 local_settings.py
+youtube_dl/**
+
