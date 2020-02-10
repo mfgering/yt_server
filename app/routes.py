@@ -1,7 +1,7 @@
 import jinja2.utils
 import jinja2.filters
-from flask import render_template, flash, redirect
-import downloader
+from flask import render_template, flash, redirect, request, session
+import config, downloader
 from app import app
 from app.forms import LoginForm, DownloadForm
 
@@ -9,8 +9,12 @@ from app.forms import LoginForm, DownloadForm
 @app.route('/index', methods=['GET', 'POST'])
 @app.route('/download', methods=['GET', 'POST'])
 def download():
-	form = DownloadForm()
+	if request.method == 'GET':
+		form = DownloadForm(dl_dir=session.get('dl_dir', config.Config.DEFAULT_DOWNLOAD_DIR))
+	else:
+		form = DownloadForm(request.form)
 	if form.validate_on_submit():
+		session['dl_dir'] = form.dl_dir.data
 		msg = downloader.Downloader.submit_download(form)
 		if msg is not None:
 			flash(msg)

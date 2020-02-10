@@ -9,3 +9,11 @@ td, th {
   text-align: left;
 }
 
+.main-menu ul {
+  list-style-type: none;
+}
+
+.main-menu-item {
+  float: left;
+  margin-right: 0.5em;
+}

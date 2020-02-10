@@ -23,6 +23,9 @@
         <p>
             {{ with_errors(form.url, size=60) }}
         </p>
+        <p>
+            {{ with_errors(form.dl_dir, size=60) }}
+        </p>
         <p>{{ form.submit() }}</p>
     </form>
 {% endblock %}
