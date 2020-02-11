@@ -1,5 +1,3 @@
-{% extends "base.html" %}
-
 {% macro with_errors(field) %}
     <div class="form_field">
     {% if field.label %}
@@ -14,6 +12,8 @@
     {% endif %}
     </div>
 {% endmacro %}
+
+{% extends "base.html" %}
 
 
 {% block content %}
