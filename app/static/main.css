@@ -17,3 +17,17 @@ td, th {
   float: left;
   margin-right: 0.5em;
 }
+.errors {
+  list-style-type: none;
+  color: red;
+}
+
+.has_error {
+  border-color: red
+}
+
+.flashes {
+  list-style: none;
+  border-style: solid;
+  color: red;
+}

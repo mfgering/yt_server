@@ -12,10 +12,12 @@ class Downloader(object):
 
 	@classmethod
 	def submit_download(cls, form):
-		#TODO: Check, init ffmpeg_location option (using Config)
+		#TODO: use form.dl_dir and template
 		#TODO: Use https://www.pornhub.com/view_video.php?viewkey=ph599750d260673&pkey=130645252
 		ytdl_opts = {}
-		ytdl_opts['outtmpl'] = Config.OUTPUT_TEMPLATE
+		dl_dir = form.dl_dir.data
+		dl_patt = form.dl_patt.data
+		ytdl_opts['outtmpl'] = dl_dir+dl_patt
 		ytdl_opts['ffmpeg_location'] = Config.FFMPEG_LOCATION
 		url = form.url.data
 		thread = DownloadThread(Downloader.thread_callback, ytdl_opts, url)
