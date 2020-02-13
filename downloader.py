@@ -1,4 +1,4 @@
-import sys
+import os, sys
 from config import Config
 from io import StringIO
 import logging
@@ -13,9 +13,9 @@ class Downloader(object):
 	@classmethod
 	def submit_download(cls, form):
 		ytdl_opts = {}
-		dl_dir = form.dl_dir.data
+		dl_dir = os.path.normpath(form.dl_dir.data)
 		dl_patt = form.dl_patt.data
-		ytdl_opts['outtmpl'] = dl_dir+dl_patt
+		ytdl_opts['outtmpl'] = os.path.join(dl_dir, dl_patt)
 		ytdl_opts['ffmpeg_location'] = Config.FFMPEG_LOCATION
 		ytdl_opts['restrictfilenames'] = Config.RESTRICT_FILENAMES
 		url = form.url.data

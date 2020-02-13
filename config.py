@@ -1,11 +1,6 @@
 import os
 import local_settings
 
-"""TODO:    --restrict-filenames             Restrict filenames to only ASCII
-                                     characters, and avoid "&" and spaces in
-                                     filenames
-"""
-
 class Config(object):
 	SECRET_KEY = os.environ.get("SECRET_KEY") or "sske89822Jl..234BBB--=SSS298234"
 	MAX_CONCURRENT_DL = 3
