@@ -18,6 +18,14 @@ class Downloader(object):
 		ytdl_opts['outtmpl'] = os.path.join(dl_dir, dl_patt)
 		ytdl_opts['ffmpeg_location'] = Config.FFMPEG_LOCATION
 		ytdl_opts['restrictfilenames'] = Config.RESTRICT_FILENAMES
+		if form.x_audio.data:
+			ytdl_opts['postprocessors'] = [{
+				'key': 'FFmpegExtractAudio',
+				'preferredcodec': 'mp3',
+				'preferredquality': '192',
+			}]
+			#ytdl_opts["extractaudio"] = True
+			#ytdl_opts["audioformat"] = "best"
 		url = form.url.data
 		thread = DownloadThread(Downloader.thread_callback, ytdl_opts, url)
 		Downloader.Queue.append(thread)

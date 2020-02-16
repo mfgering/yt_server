@@ -13,6 +13,7 @@ class DownloadForm(FlaskForm):
 	url = StringField('URL', validators=[DataRequired(message='URL is needed'), URL(message="Invalid URL")])
 	dl_dir = StringField('Download directory', validators=[DataRequired(message='A directory name is needed')])
 	dl_patt = StringField('Download pattern', validators=[DataRequired(message='A pattern is needed')])
+	x_audio = BooleanField("Audio only")
 	submit = SubmitField('Submit')
 
 	@staticmethod

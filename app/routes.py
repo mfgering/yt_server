@@ -11,12 +11,14 @@ from app.forms import LoginForm, DownloadForm
 def download():
 	if request.method == 'GET':
 		form = DownloadForm(dl_dir=session.get('dl_dir', config.Config.DEFAULT_DOWNLOAD_DIR),
-							dl_patt=session.get('dl_patt', config.Config.DEFAULT_DOWNLOAD_NAME_PATTERN))
+							dl_patt=session.get('dl_patt', config.Config.DEFAULT_DOWNLOAD_NAME_PATTERN),
+							x_audio=session.get('x_audio', False))
 	else:
 		form = DownloadForm(request.form)
 	if form.validate_on_submit():
 		session['dl_dir'] = form.dl_dir.data
 		session['dl_patt'] = form.dl_patt.data
+		session['x_audio'] = form.x_audio.data
 		msg = downloader.Downloader.submit_download(form)
 		if msg is not None:
 			flash(msg)
