@@ -27,6 +27,7 @@ class Downloader(object):
 			#ytdl_opts["extractaudio"] = True
 			#ytdl_opts["audioformat"] = "best"
 		url = form.url.data
+		Config.MAX_CONCURRENT_DL = form.max_dl.data
 		thread = DownloadThread(Downloader.thread_callback, ytdl_opts, url)
 		Downloader.Queue.append(thread)
 		Downloader.run_next_queued()

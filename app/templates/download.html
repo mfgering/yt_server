@@ -32,6 +32,9 @@
         <p>
             {{ with_errors(form.x_audio, size=60) }}
         </p>
+        <p>
+            {{ with_errors(form.max_dl, size=10) }}
+        </p>
         <p>{{ form.submit() }}</p>
     </form>
 {% endblock %}

@@ -1,7 +1,7 @@
 from pathlib import Path
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, URL, ValidationError
+from wtforms import IntegerField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired, NumberRange, URL, ValidationError
 
 class LoginForm(FlaskForm):
 	username = StringField('Username', validators=[DataRequired()])
@@ -14,6 +14,7 @@ class DownloadForm(FlaskForm):
 	dl_dir = StringField('Download directory', validators=[DataRequired(message='A directory name is needed')])
 	dl_patt = StringField('Download pattern', validators=[DataRequired(message='A pattern is needed')])
 	x_audio = BooleanField("Audio only")
+	max_dl = IntegerField("Max concurrent downloads", validators=[NumberRange(min=1, message="Must be at least 1")])
 	submit = SubmitField('Submit')
 
 	@staticmethod
