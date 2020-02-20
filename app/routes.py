@@ -3,7 +3,7 @@ import jinja2.filters
 from flask import render_template, flash, redirect, request, session
 import config, downloader
 from app import app
-from app.forms import LoginForm, DownloadForm
+from app.forms import LoginForm, DownloadForm, SettingsForm
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -28,6 +28,39 @@ def download():
 	if len(form.errors) > 0:
 		flash("Please fix the problems and try again.")
 	return render_template('download.html', title='Download', form=form)
+
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+	if request.method == 'GET':
+		form = SettingsForm(dl_dir=session.get('dl_dir', config.Config.DEFAULT_DOWNLOAD_DIR),
+							dl_patt=session.get('dl_patt', config.Config.DEFAULT_DOWNLOAD_NAME_PATTERN),
+							x_audio=session.get('x_audio', False),
+							max_dl=session.get('max_dl', config.Config.MAX_CONCURRENT_DL))
+	else:
+		form = SettingsForm(request.form)
+	if form.validate_on_submit():
+		session['dl_dir'] = form.dl_dir.data
+		session['dl_patt'] = form.dl_patt.data
+		session['max_dl'] = form.max_dl.data
+		msg = submit_settings(form)
+		if msg is not None:
+			flash(msg)
+		return redirect('/settings')
+	if len(form.errors) > 0:
+		flash("Please fix the problems and try again.")
+	return render_template('settings.html', title='Settings', form=form)
+
+def submit_settings(form):
+	msg = None
+	if form.restart.data:
+		restart_server()
+	return msg
+
+def restart_server():
+	func = request.environ.get('werkzeug.server.shutdown')
+	if func is None:
+		raise RuntimeError('Not running with the Werkzeug Server')
+	func()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
