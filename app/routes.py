@@ -1,3 +1,5 @@
+import os
+import psutil
 import jinja2.utils
 import jinja2.filters
 from flask import render_template, flash, redirect, request, session
@@ -57,10 +59,14 @@ def submit_settings(form):
 	return msg
 
 def restart_server():
-	func = request.environ.get('werkzeug.server.shutdown')
-	if func is None:
-		raise RuntimeError('Not running with the Werkzeug Server')
-	func()
+	for proc in psutil.process_iter():
+		try:
+			for parm in proc.cmdline():
+				if "gunicorn" in parm:
+					proc.kill()
+					break
+		except Exception:
+			pass
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
