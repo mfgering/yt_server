@@ -1,6 +1,7 @@
 import os
 import psutil
 import subprocess
+import sys
 import jinja2.utils
 import jinja2.filters
 import youtube_dl
@@ -66,15 +67,31 @@ def submit_settings(form):
 
 def update_server():
 	msg = None
-	git_command = ['git', 'update']
-	repository  = os.getcwd()
-
-	git_query = Popen(git_command, cwd=repository, stdout=PIPE, stderr=PIPE)
-	(git_status, error) = git_query.communicate()
-	if git_query.poll() == 0:
-		# Do stuff
-		pass
+	git_command = ['git', 'pull', '--recurse-submodules']
+	(out_str, err_str) = do_proc(git_command)
+	git_command = ['git', 'submodule', 'update', '--remote', '--recursive']
+	(out_str, err_str) = do_proc(git_command)
 	return msg
+
+def do_proc(cmd):
+	out_str = ''
+	err_str = ''
+	try:
+		flash(" ".join(cmd))
+		p = Popen(cmd, cwd=os.getcwd(), stdout=PIPE, stderr=PIPE)
+		(out, err) = p.communicate()
+		if p.poll() == 0:
+			out_str = out.decode(sys.stdout.encoding)
+			err_str = err.decode(sys.stdout.encoding)
+		else:
+			err_str = "Bad poll() result"
+	except Exception as exc:
+		err_str = "Exception: "+str(exc)
+	if len(out_str) > 0:
+		flash(f"Output: {out_str}")
+	if len(err_str) > 0:
+		flash(f"Error: {err_str}")
+	return (out_str, err_str)
 
 def restart_server():
 	for proc in psutil.process_iter():
