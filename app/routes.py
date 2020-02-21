@@ -61,6 +61,8 @@ def submit_settings(form):
 	msg = None
 	if form.update.data:
 		update_server()
+		if not form.restart.data:
+			flash("**** You must restart the server to reload code updates.")
 	if form.restart.data:
 		restart_server()
 	return msg
