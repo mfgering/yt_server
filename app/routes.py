@@ -8,6 +8,8 @@ from flask import render_template, flash, redirect, request, session
 import config, downloader
 from app import app
 from app.forms import LoginForm, DownloadForm, SettingsForm
+from subprocess import Popen, PIPE
+from os import path
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -64,7 +66,14 @@ def submit_settings(form):
 
 def update_server():
 	msg = None
+	git_command = ['git', 'update']
+	repository  = os.getcwd()
 
+	git_query = Popen(git_command, cwd=repository, stdout=PIPE, stderr=PIPE)
+	(git_status, error) = git_query.communicate()
+	if git_query.poll() == 0:
+		# Do stuff
+		pass
 	return msg
 
 def restart_server():
