@@ -30,4 +30,12 @@ td, th {
   list-style: none;
   border-style: solid;
   color: red;
+  display: inline-block;
+  padding: 15px;
+}
+
+.info-box {
+  border: solid;
+  display: inline-block;
+  padding: 15px;
 }
