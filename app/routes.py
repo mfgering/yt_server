@@ -1,7 +1,9 @@
 import os
 import psutil
+import subprocess
 import jinja2.utils
 import jinja2.filters
+import youtube_dl
 from flask import render_template, flash, redirect, request, session
 import config, downloader
 from app import app
@@ -50,17 +52,25 @@ def settings():
 		return redirect('/settings')
 	if len(form.errors) > 0:
 		flash("Please fix the problems and try again.")
-	return render_template('settings.html', title='Settings', form=form)
+	return render_template('settings.html', title='Settings', form=form, yt_version=youtube_dl.youtube_dl.version.__version__)
 
 def submit_settings(form):
 	msg = None
+	if form.update.data:
+		update_server()
 	if form.restart.data:
 		restart_server()
+	return msg
+
+def update_server():
+	msg = None
+
 	return msg
 
 def restart_server():
 	for proc in psutil.process_iter():
 		try:
+			print(" ".join(proc.cmdline()))
 			for parm in proc.cmdline():
 				if "gunicorn" in parm:
 					proc.kill()
