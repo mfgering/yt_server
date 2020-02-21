@@ -18,7 +18,9 @@
 
 {% block content %}
     <h1>Settings</h1>
-    <p>Youtube version: {{ yt_version }}</p>
+    <p>Uptime: {{ uptime }}<br/>
+    Youtube version: {{ yt_version }}</p>
+    <hr/>
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
         <p>
