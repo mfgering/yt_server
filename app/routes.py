@@ -66,11 +66,13 @@ def submit_settings(form):
 	return msg
 
 def update_server():
+	flash("Updating the server")
 	msg = None
 	git_command = ['git', 'pull', '--recurse-submodules']
-	(out_str, err_str) = do_proc(git_command)
+	do_proc(git_command)
 	git_command = ['git', 'submodule', 'update', '--remote', '--recursive']
-	(out_str, err_str) = do_proc(git_command)
+	do_proc(git_command)
+	flash("Done updating the server")
 	return msg
 
 def do_proc(cmd):
