@@ -31,6 +31,7 @@
 
 {% block content %}
   <h1>Status</h1>
+  <label><input id="status_auto_checkbox" type="checkbox" checked=""/>Auto-update</label> 
   <h2>Running</h2>
     {{ dl_table(context.running, 'dl-running', ['URL', 'ETA', 'Percent', 'Speed', 'Total Bytes', 'Log'])}}
   <h2>Queued</h2>

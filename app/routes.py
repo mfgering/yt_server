@@ -1,4 +1,6 @@
 import os
+import app
+import datetime
 import psutil
 import subprocess
 import sys
@@ -38,6 +40,10 @@ def download():
 
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
+	t = datetime.datetime.utcnow() - app.start_time
+	hours, remainder = divmod(t.seconds, 3600)
+	minutes, seconds = divmod(remainder, 60)
+	uptime_str = '%s hours, %s minutes, %s seconds' % (hours, minutes, seconds)
 	if request.method == 'GET':
 		form = SettingsForm(dl_dir=session.get('dl_dir', config.Config.DEFAULT_DOWNLOAD_DIR),
 							dl_patt=session.get('dl_patt', config.Config.DEFAULT_DOWNLOAD_NAME_PATTERN),
@@ -55,7 +61,9 @@ def settings():
 		return redirect('/settings')
 	if len(form.errors) > 0:
 		flash("Please fix the problems and try again.")
-	return render_template('settings.html', title='Settings', form=form, yt_version=youtube_dl.youtube_dl.version.__version__)
+	
+	return render_template('settings.html', title='Settings', form=form, uptime=uptime_str,
+		yt_version=youtube_dl.youtube_dl.version.__version__)
 
 def submit_settings(form):
 	msg = None
