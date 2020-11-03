@@ -2,7 +2,8 @@
 {% block headblock %}
     <script src="{{ url_for('static', filename='status.js') }}"></script>
 {% endblock %}
-{% macro dl_table(dl_items, css_class, cols) %}
+
+{% macro dl_table(dl_items, css_class, col_labels, cols) %}
   <div class="{{css_class}}">
     {% if dl_items|length == 0 %}
       <p>Empty</p>
@@ -10,14 +11,14 @@
       <table>
         <thead>
           <tr>
-            {% for extra in cols %}
+            {% for extra in col_labels %}
               <th>{{ extra }}</th>
             {% endfor %}
           </tr>
         </thead>
         <tbody>
           {% for j in dl_items %}
-            <tr thread-id="{{ j['thread_id'] }}">
+            <tr rowid="{{ j['rowid'] }}">
             {% for extra in cols %}
               <td>{{ j[extra]|safe }}</td>
             {% endfor %}
@@ -33,15 +34,19 @@
   <h1>Status</h1>
   <label><input id="status_auto_checkbox" type="checkbox" checked=""/>Auto-update</label> 
   <h2>Running</h2>
-    {{ dl_table(context.running, 'dl-running', ['URL', 'ETA', 'Percent', 'Speed', 'Total Bytes', 'Log'])}}
+  {#
+    {{ running_table(context.running, 'dl-running')}}
+  #}
+
+    {{ dl_table(context.running, 'dl-running', ['Id', 'Started', 'URL', 'Title', 'ETA', 'Percent', 'Speed', 'Total Bytes'],
+                                               ['rowid', 'run_time', 'url', 'title', 'ETA', 'Percent', 'Speed', 'Total Bytes']
+    )}}
   <h2>Queued</h2>
-    {{ dl_table(context.queued, 'dl-queued', ['URL'])}}
+    {{ dl_table(context.queued, 'dl-queued', ['Id', 'Queued', 'URL'], ['rowid', 'queued_time', 'url'])}}
     {% if context.queued|length > 0 %}
       <p><a href="/clear/queued">Clear all queued entries</a></p>
     {% endif %}
   <h2>Done</h2>
-    {{ dl_table(context.done, 'dl-done', ['URL', 'Filename', 'Total Bytes', 'Log'])}}
-    {% if context.done|length > 0 %}
-      <p><a href="/clear/done">Clear all Done entries</a></p>
-    {% endif %}
+    {{ dl_table(context.done, 'dl-done', ['Id', 'Done', 'URL', 'Title', 'Filename', 'Total Bytes', 'Log'],
+                                         ['rowid', 'done_time', 'url', 'title', 'filename', 'filesize', 'log'])}}
 {%endblock%}

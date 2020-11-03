@@ -2,7 +2,6 @@ import os
 import app
 import datetime
 import psutil
-import subprocess
 import sys
 import jinja2.utils
 import jinja2.filters
@@ -13,6 +12,7 @@ from app import app
 from app.forms import LoginForm, DownloadForm, SettingsForm
 from subprocess import Popen, PIPE
 from os import path
+import db_stg
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -128,29 +128,68 @@ def login():
 @app.route('/status', methods=['GET'])
 def status():
 	context = {}
-	context['done'] = _get_thread_status(downloader.Downloader.Done)
-	context['running'] = _get_thread_status(downloader.Downloader.Running)
-	context['queued'] = _get_thread_status(downloader.Downloader.Queue)
+	context["queued"] = _get_queued_context()
+	context["running"] = _get_running_context()
+	context['done'] = _get_done_context()
 	return render_template("status.html", title="Status", context=context)
 
 @app.route('/clear/<arr_name>', methods=['GET'])
 def clear_array(arr_name):
 	if arr_name == "queued":
-		downloader.Downloader.Queue.clear()
-	elif arr_name == "done":
-		downloader.Downloader.Done.clear()
+		deleted = db_stg.Stg().clear_queued()
+		flash("Deleted "+deleted+"queued entries")
 	return redirect('/status')
 
-@app.route('/log/<thread_id>', methods=['GET'])
+@app.route('/log/thread/<thread_id>', methods=['GET'])
 def get_log(thread_id):
-	context = {'thread_id': thread_id, 'url': 'Unknown', 'log': 'Nothing logged'}
-	context['log'] = "Nothing logged"
-	for thrd in downloader.Downloader.Running+downloader.Downloader.Queue+downloader.Downloader.Done:
+	context = {'thread_id': thread_id, 'log': 'Nothing logged'}
+	for thrd in downloader.Downloader.Running:
 		if str(thrd.ident) == thread_id:
 			context['log'] = thrd.get_log()
-			context['url'] = thrd.url
 			break
 	return render_template("log.html", title="Log", context=context)
+
+@app.route('/log/stg/<rowid>', methods=['GET'])
+def get_log_stg(rowid):
+	log_str = db_stg.Stg().get_log(rowid)
+	if log_str == None:
+		log_str = 'Nothing logged'
+	context = {'rowid': rowid, 'log': log_str}
+	return render_template("log.html", title="Log", context=context)
+
+def _get_queued_context():
+	stg = db_stg.Stg()
+	ctx = stg.get_queued_status() 
+	return ctx
+
+def _get_done_context():
+	stg = db_stg.Stg()
+	ctx = stg.get_done_status()
+	for row in ctx:
+		if 'url' in row:
+			url = row['url']
+			row['url'] = '<a href="'+url+'" target="_blank">'+url+"</a>"
+		log_str = '<a href="/log/stg/'+str(row['rowid'])+'" target="_blank">Log</a>'
+		row['log'] = log_str
+	return ctx
+
+def _get_running_context():
+	ctx = []
+	for thrd in downloader.Downloader.Running:
+		j_data = {"url": jinja2.utils.urlize(thrd.url, target="_blank")}
+		j_data['thread_id'] = thrd.ident
+		j_data['rowid'] = thrd.stg_id
+		j_data['log'] = '<a href="/log/{}" target="_blank">Log</a>'.format(thrd.ident)
+		if thrd.progress is not None:
+			j_data['ETA'] = thrd.progress.get('_eta_str', '')
+			j_data['Percent'] = thrd.progress.get('_percent_str', '')
+			j_data['Status'] = thrd.progress.get('status', '')
+			j_data['Filename'] = thrd.progress.get('filename', '')
+			j_data['Total Bytes'] = jinja2.filters.do_filesizeformat(thrd.progress.get('total_bytes', '0'))
+			j_data['Speed'] = thrd.progress.get('_speed_str', '')
+			j_data['Title'] = thrd.title
+		ctx.append(j_data)
+	return ctx
 
 def _get_thread_status(items):
 	"""

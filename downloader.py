@@ -7,9 +7,7 @@ import youtube_dl.youtube_dl.YoutubeDL
 import db_stg
 
 class Downloader(object):
-	Queue = []
 	Running = []
-	Done = []
 
 	@classmethod
 	def submit_download(cls, form):
@@ -29,33 +27,47 @@ class Downloader(object):
 			#ytdl_opts["audioformat"] = "best"
 		url = form.url.data
 		Config.MAX_CONCURRENT_DL = form.max_dl.data
-		thread = DownloadThread(Downloader.thread_callback, ytdl_opts, url)
 		stg = db_stg.Stg()
-		thread.stg_id = stg.enqueue(url, thread.title)
-		Downloader.Queue.append(thread)
+		stg.enqueue(url, ytdl_opts)
 		Downloader.run_next_queued()
 		msg = "Download submitted"
 		return msg
 	
 	@classmethod
 	def thread_callback(cls, thread, data=None):
-		db_stg.Stg().done(thread.stg_id)
+		title = thread.title
+		filename = None
+		filesize = None
+		if thread.progress is not None:
+			filename = thread.progress.get('filename', None)
+			try:
+				filesize = os.stat(filename).st_size
+			except:
+				pass
+		db_stg.Stg().done(thread.stg_id, thread.get_log(), filename, filesize)
 		Downloader.Running.remove(thread)
-		Downloader.Done.append(thread)
 		Downloader.run_next_queued()
 
 	@classmethod
 	def run_next_queued(cls):
 		stg = db_stg.Stg()
-		while(len(Downloader.Queue) > 0 and (len(Downloader.Running) < Config.MAX_CONCURRENT_DL or Config.MAX_CONCURRENT_DL < 0)):
-			thread = Downloader.Queue.pop()
-			stg.start_run(thread.stg_id, thread.title)
-			Downloader.Running.append(thread)
-			thread.start()
+		queued = stg.get_queued()
+		running = stg.get_running()
+		to_run = len(queued)
+		if Config.MAX_CONCURRENT_DL >= 0:
+			to_run = min(len(queued), Config.MAX_CONCURRENT_DL - len(running))
+		for x in range(to_run):
+			id = queued[x]
+			(url, opts) = stg.get_start_info(id)
+			dl_thread = DownloadThread(opts, url, Downloader.thread_callback, id)
+			Downloader.Running.append(dl_thread)
+			stg.start_run(id, dl_thread.title)
+			dl_thread.start()		
 
 class DownloadThread(Thread):
-	def __init__(self, callback, ytdl_opts, url):
+	def __init__(self, ytdl_opts, url, callback, stg_id):
 		super().__init__()
+		self.stg_id = stg_id
 		self.callback = callback
 		self.progress = None
 		self.logger = logging.getLogger(self.getName())
@@ -67,14 +79,13 @@ class DownloadThread(Thread):
 		opts['logger'] = self.logger
 		ytdl = youtube_dl.youtube_dl.YoutubeDL(opts)
 		info = ytdl.extract_info(url, download=False)
-		self.title = '*** unknown ***'
+		self.title = None
 		if 'title' in info:
 			self.title = info['title']
 		ytdl.add_progress_hook(self.progress_callback)
 		self.ytdl = ytdl
 		self.url = url
 		self.log = ""
-		self.stg_id = None
 
 	def get_logger(self):
 		return self.logger
@@ -82,7 +93,6 @@ class DownloadThread(Thread):
 	def run(self):
 		try:
 			self.ytdl.download([self.url])
-			print("ytdl done")
 		except Exception as exc:
 			print(str(exc))
 		self.log = self.log_stream.getvalue()

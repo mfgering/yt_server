@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
   <h1>Log</h1>
-  <p>URL: {{ context.url|urlize(target='_blank') }}</p>
   {% set log_str = context.log %}
   {% set lines = log_str.split('\n') %}
   <p>
