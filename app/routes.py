@@ -19,10 +19,10 @@ import db_stg
 @app.route('/download', methods=['GET', 'POST'])
 def download():
 	if request.method == 'GET':
-		form = DownloadForm(dl_dir=session.get('dl_dir', config.Config.DEFAULT_DOWNLOAD_DIR),
-							dl_patt=session.get('dl_patt', config.Config.DEFAULT_DOWNLOAD_NAME_PATTERN),
+		form = DownloadForm(dl_dir=session.get('dl_dir', config.Config.instance().DEFAULT_DOWNLOAD_DIR),
+							dl_patt=session.get('dl_patt', config.Config.instance().DEFAULT_DOWNLOAD_NAME_PATTERN),
 							x_audio=session.get('x_audio', False),
-							max_dl=session.get('max_dl', config.Config.MAX_CONCURRENT_DL))
+							max_dl=session.get('max_dl', config.Config.instance().MAX_CONCURRENT_DL))
 	else:
 		form = DownloadForm(request.form)
 	if form.validate_on_submit():
@@ -45,16 +45,19 @@ def settings():
 	minutes, seconds = divmod(remainder, 60)
 	uptime_str = '%s hours, %s minutes, %s seconds' % (hours, minutes, seconds)
 	if request.method == 'GET':
-		form = SettingsForm(dl_dir=session.get('dl_dir', config.Config.DEFAULT_DOWNLOAD_DIR),
-							dl_patt=session.get('dl_patt', config.Config.DEFAULT_DOWNLOAD_NAME_PATTERN),
+		form = SettingsForm(dl_dir=session.get('dl_dir', config.Config.instance().DEFAULT_DOWNLOAD_DIR),
+							dl_patt=session.get('dl_patt', config.Config.instance().DEFAULT_DOWNLOAD_NAME_PATTERN),
 							x_audio=session.get('x_audio', False),
-							max_dl=session.get('max_dl', config.Config.MAX_CONCURRENT_DL))
+							max_dl=session.get('max_dl', config.Config.instance().MAX_CONCURRENT_DL),
+							max_done=session.get('max_done', config.Config.instance().MAX_DONE))
 	else:
 		form = SettingsForm(request.form)
 	if form.validate_on_submit():
-		session['dl_dir'] = form.dl_dir.data
-		session['dl_patt'] = form.dl_patt.data
-		session['max_dl'] = form.max_dl.data
+		cfg = config.Config.instance()
+		cfg.DEFAULT_DOWNLOAD_DIR = session['dl_dir'] = form.dl_dir.data
+		cfg.DEFAULT_DOWNLOAD_NAME_PATTERN = session['dl_patt'] = form.dl_patt.data
+		cfg.MAX_CONCURRENT_DL = session['max_dl'] = form.max_dl.data
+		cfg.MAX_DONE = session['max_done'] = form.max_done.data
 		msg = submit_settings(form)
 		if msg is not None:
 			flash(msg)
@@ -131,6 +134,7 @@ def status():
 	context["queued"] = _get_queued_context()
 	context["running"] = _get_running_context()
 	context['done'] = _get_done_context()
+	context['config'] = config.Config.instance()
 	return render_template("status.html", title="Status", context=context)
 
 @app.route('/clear/<arr_name>', methods=['GET'])
@@ -159,17 +163,23 @@ def get_log_stg(rowid):
 
 def _get_queued_context():
 	stg = db_stg.Stg()
-	ctx = stg.get_queued_status() 
+	ctx = stg.get_queued_status()
+	for row in ctx:
+		if 'url' in ctx:
+			row['url'] = '<a href="'+row['url']+'" target="_blank">'+row['url']+'</a>'
 	return ctx
 
 def _get_done_context():
 	stg = db_stg.Stg()
-	ctx = stg.get_done_status()
+	ctx = stg.get_done_status(config.Config.instance().MAX_DONE)
 	for row in ctx:
 		if 'url' in row:
 			url = row['url']
 			row['url'] = '<a href="'+url+'" target="_blank">'+url+"</a>"
 		log_str = '<a href="/log/stg/'+str(row['rowid'])+'" target="_blank">Log</a>'
+		if 'filesize' in row:
+			if row['filesize'] is None:
+				row['filesize'] = ''
 		row['log'] = log_str
 	return ctx
 

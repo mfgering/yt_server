@@ -36,6 +36,7 @@ class SettingsForm(FlaskForm):
 	max_dl = IntegerField("Max concurrent downloads", validators=[NumberRange(min=1, message="Must be at least 1")])
 	restart = BooleanField("Restart server")
 	update = BooleanField("Update server")
+	max_done = IntegerField("Max number of 'done' records for status")
 	submit = SubmitField('Submit')
 
 	@staticmethod

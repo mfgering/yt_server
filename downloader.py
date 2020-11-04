@@ -15,8 +15,8 @@ class Downloader(object):
 		dl_dir = os.path.normpath(form.dl_dir.data)
 		dl_patt = form.dl_patt.data
 		ytdl_opts['outtmpl'] = os.path.join(dl_dir, dl_patt)
-		ytdl_opts['ffmpeg_location'] = Config.FFMPEG_LOCATION
-		ytdl_opts['restrictfilenames'] = Config.RESTRICT_FILENAMES
+		ytdl_opts['ffmpeg_location'] = Config.instance().FFMPEG_LOCATION
+		ytdl_opts['restrictfilenames'] = Config.instance().RESTRICT_FILENAMES
 		if form.x_audio.data:
 			ytdl_opts['postprocessors'] = [{
 				'key': 'FFmpegExtractAudio',
@@ -26,7 +26,7 @@ class Downloader(object):
 			#ytdl_opts["extractaudio"] = True
 			#ytdl_opts["audioformat"] = "best"
 		url = form.url.data
-		Config.MAX_CONCURRENT_DL = form.max_dl.data
+		Config.instance().MAX_CONCURRENT_DL = form.max_dl.data
 		stg = db_stg.Stg()
 		stg.enqueue(url, ytdl_opts)
 		Downloader.run_next_queued()
@@ -35,7 +35,6 @@ class Downloader(object):
 	
 	@classmethod
 	def thread_callback(cls, thread, data=None):
-		title = thread.title
 		filename = None
 		filesize = None
 		if thread.progress is not None:
@@ -43,6 +42,7 @@ class Downloader(object):
 			try:
 				filesize = os.stat(filename).st_size
 			except:
+				filesize = -1
 				pass
 		db_stg.Stg().done(thread.stg_id, thread.get_log(), filename, filesize)
 		Downloader.Running.remove(thread)
@@ -54,8 +54,8 @@ class Downloader(object):
 		queued = stg.get_queued()
 		running = stg.get_running()
 		to_run = len(queued)
-		if Config.MAX_CONCURRENT_DL >= 0:
-			to_run = min(len(queued), Config.MAX_CONCURRENT_DL - len(running))
+		if Config.instance().MAX_CONCURRENT_DL >= 0:
+			to_run = min(len(queued), Config.instance().MAX_CONCURRENT_DL - len(running))
 		for x in range(to_run):
 			id = queued[x]
 			(url, opts) = stg.get_start_info(id)
@@ -104,4 +104,6 @@ class DownloadThread(Thread):
 		self.progress = data
 
 	def get_log(self):
+		if len(self.log) == 0:
+			self.log = self.log_stream.getvalue()
 		return self.log

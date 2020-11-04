@@ -117,9 +117,11 @@ class Stg(object):
 		done = cur.fetchall()
 		return [r[0] for r in done]
 
-	def get_done_status(self):
+	def get_done_status(self, max_rows):
 		keys = ['rowid', 'done_time', 'url', 'title', 'filename', 'filesize']
 		sql = 'select '+', '.join(keys)+' from downloads where done_time is not null order by rowid desc'
+		if max_rows >= 0:
+			sql += ' limit '+str(max_rows)
 		conn = self.get_connection()
 		cur = conn.execute(sql)
 		recs = cur.fetchall()
