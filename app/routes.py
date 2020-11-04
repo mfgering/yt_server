@@ -142,6 +142,9 @@ def clear_array(arr_name):
 	if arr_name == "queued":
 		deleted = db_stg.Stg().clear_queued()
 		flash("Deleted "+deleted+"queued entries")
+	if arr_name == "done":
+		deleted = db_stg.Stg().clear_done()
+		flash("Deleted "+deleted+"done entries")
 	return redirect('/status')
 
 @app.route('/log/thread/<thread_id>', methods=['GET'])

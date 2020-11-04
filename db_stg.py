@@ -167,6 +167,14 @@ class Stg(object):
 		cur.close()
 		return cur.rowcount
 
+	def clear_done(self):
+		conn = self.get_connection()
+		sql = ''' delete from downloads where done_time is not null ; '''
+		cur = conn.execute(sql)
+		conn.commit()
+		cur.close()
+		return cur.rowcount
+		
 def _test():
 	x = Stg()
 	running = x.get_running()
