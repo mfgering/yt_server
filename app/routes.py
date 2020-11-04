@@ -179,7 +179,8 @@ def _get_running_context():
 		j_data = {"url": jinja2.utils.urlize(thrd.url, target="_blank")}
 		j_data['thread_id'] = thrd.ident
 		j_data['rowid'] = thrd.stg_id
-		j_data['log'] = '<a href="/log/{}" target="_blank">Log</a>'.format(thrd.ident)
+		j_data['run_time'] = thrd.run_time
+		j_data['log'] = '<a href="/log/thread/{}" target="_blank">Log</a>'.format(thrd.ident)
 		if thrd.progress is not None:
 			j_data['ETA'] = thrd.progress.get('_eta_str', '')
 			j_data['Percent'] = thrd.progress.get('_percent_str', '')
@@ -187,7 +188,7 @@ def _get_running_context():
 			j_data['Filename'] = thrd.progress.get('filename', '')
 			j_data['Total Bytes'] = jinja2.filters.do_filesizeformat(thrd.progress.get('total_bytes', '0'))
 			j_data['Speed'] = thrd.progress.get('_speed_str', '')
-			j_data['Title'] = thrd.title
+			j_data['title'] = thrd.title
 		ctx.append(j_data)
 	return ctx
 

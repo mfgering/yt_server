@@ -56,10 +56,12 @@ class Stg(object):
 		opts = json.loads(opts_json)
 		return (url, opts)
 
-	def start_run(self, stg_id, title):
+	def start_run(self, stg_id, dl_thrd):
+		run_time = self._now_str()
+		dl_thrd.run_time = run_time # Save for later (rendering)
 		conn = self.get_connection()
 		sql = ''' update downloads set run_time = :rtime, title = :title where rowid = :stg_id;'''
-		cur = conn.execute(sql, {'rtime': self._now_str(), 'stg_id': stg_id, 'title': title})
+		cur = conn.execute(sql, {'rtime': run_time, 'stg_id': stg_id, 'title': dl_thrd.title})
 		if cur.rowcount != 1:
 			raise Exception("No row found for "+stg_id)
 		conn.commit()

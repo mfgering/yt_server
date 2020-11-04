@@ -38,8 +38,8 @@
     {{ running_table(context.running, 'dl-running')}}
   #}
 
-    {{ dl_table(context.running, 'dl-running', ['Id', 'Started', 'URL', 'Title', 'ETA', 'Percent', 'Speed', 'Total Bytes'],
-                                               ['rowid', 'run_time', 'url', 'title', 'ETA', 'Percent', 'Speed', 'Total Bytes']
+    {{ dl_table(context.running, 'dl-running', ['Id', 'Started', 'URL', 'Title', 'ETA', 'Percent', 'Speed', 'Total Bytes', 'Log'],
+                                               ['rowid', 'run_time', 'url', 'title', 'ETA', 'Percent', 'Speed', 'Total Bytes', 'log']
     )}}
   <h2>Queued</h2>
     {{ dl_table(context.queued, 'dl-queued', ['Id', 'Queued', 'URL'], ['rowid', 'queued_time', 'url'])}}

@@ -60,8 +60,8 @@ class Downloader(object):
 			id = queued[x]
 			(url, opts) = stg.get_start_info(id)
 			dl_thread = DownloadThread(opts, url, Downloader.thread_callback, id)
+			stg.start_run(id, dl_thread)
 			Downloader.Running.append(dl_thread)
-			stg.start_run(id, dl_thread.title)
 			dl_thread.start()		
 
 class DownloadThread(Thread):
