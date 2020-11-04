@@ -45,4 +45,7 @@
   <h2>Done ({{ context.config.MAX_DONE }} max)</h2>
     {{ dl_table(context.done, 'dl-done', ['Id', 'Done', 'URL', 'Title', 'Filename', 'Total Bytes', 'Log'],
                                          ['rowid', 'done_time', 'url', 'title', 'filename', 'filesize', 'log'])}}
+    {% if context.done|length > 0 %}
+       <p><a href="/clear/done">Clear all done entries</a></p>
+    {% endif %}
 {%endblock%}
