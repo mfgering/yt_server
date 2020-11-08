@@ -164,6 +164,23 @@ def get_log_stg(rowid):
 	context = {'rowid': rowid, 'log': log_str}
 	return render_template("log.html", title="Log", context=context)
 
+@app.route('/maint/downloaded', methods=['GET', 'POST'])
+def maint_downloaded():
+	if request.method == 'GET':
+		form = MaintDownloadedForm(max_done=session.get('max_done', config.Config.instance().MAX_DONE))
+	else:
+		form = MaintDownloadedForm(request.form)
+	if form.validate_on_submit():
+		msg = submit_settings(form)
+		if msg is not None:
+			flash(msg)
+		return redirect('/maint/downloaded')
+	if len(form.errors) > 0:
+		flash("Please fix the problems and try again.")
+	
+	return render_template('settings.html', title='Settings', form=form, uptime=uptime_str,
+		yt_version=youtube_dl.youtube_dl.version.__version__)
+
 def _get_queued_context():
 	stg = db_stg.Stg()
 	ctx = stg.get_queued_status()
