@@ -9,7 +9,7 @@ import youtube_dl
 from flask import render_template, flash, redirect, request, session
 import config, downloader
 from app import app
-from app.forms import LoginForm, DownloadForm, SettingsForm
+from app.forms import LoginForm, DownloadForm, SettingsForm, MaintDownloadedForm
 from subprocess import Popen, PIPE
 from os import path
 import db_stg
@@ -167,7 +167,7 @@ def get_log_stg(rowid):
 @app.route('/maint/downloaded', methods=['GET', 'POST'])
 def maint_downloaded():
 	if request.method == 'GET':
-		form = MaintDownloadedForm(max_done=session.get('max_done', config.Config.instance().MAX_DONE))
+		form = MaintDownloadedForm(max_maint_done=session.get('max_maint_done', 100))
 	else:
 		form = MaintDownloadedForm(request.form)
 	if form.validate_on_submit():
@@ -178,8 +178,7 @@ def maint_downloaded():
 	if len(form.errors) > 0:
 		flash("Please fix the problems and try again.")
 	
-	return render_template('settings.html', title='Settings', form=form, uptime=uptime_str,
-		yt_version=youtube_dl.youtube_dl.version.__version__)
+	return render_template('maint-downloaded.html', title='Settings', form=form)
 
 def _get_queued_context():
 	stg = db_stg.Stg()

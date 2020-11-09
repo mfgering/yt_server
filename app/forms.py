@@ -51,3 +51,7 @@ class SettingsForm(FlaskForm):
 			path1.mkdir(parents=True, exist_ok=False)
 		except Exception as exc:
 			raise ValidationError("Could not create the directory: "+str(exc))
+
+class MaintDownloadedForm(FlaskForm):
+	max_maint_done = IntegerField("Number of rows")
+	submit = SubmitField('Apply')
