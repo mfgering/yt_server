@@ -174,6 +174,15 @@ class Stg(object):
 		conn.commit()
 		cur.close()
 		return cur.rowcount
+
+	def delete_rec(self, id):
+		conn = self.get_connection()
+		sql = ''' delete from downloads where rowid = :rowid ; '''
+		cur = conn.execute(sql, {'rowid': id})
+		conn.commit()
+		cur.close()
+		return cur.rowcount
+
 		
 def _test():
 	x = Stg()
