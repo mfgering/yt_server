@@ -1,6 +1,6 @@
 from pathlib import Path
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms import FormField, FieldList, IntegerField, StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, NumberRange, URL, ValidationError
 
 class LoginForm(FlaskForm):
@@ -51,3 +51,20 @@ class SettingsForm(FlaskForm):
 			path1.mkdir(parents=True, exist_ok=False)
 		except Exception as exc:
 			raise ValidationError("Could not create the directory: "+str(exc))
+
+class MaintDownloadedRowForm(FlaskForm):
+#['Id', 'Done', 'URL', 'Title', 'Filename', 'Total Bytes', 'Log'],
+#        ['rowid', 'done_time', 'url', 'title', 'filename', 'filesize', 'log']
+	selected = BooleanField("Selected")
+	rowid = IntegerField("ID")
+	done_time = StringField("Done")
+	url = StringField("URL")
+	title = StringField("Title")
+	filename = StringField("Filename")
+	filesize = StringField("Total Bytes")
+
+class MaintDownloadedForm(FlaskForm):
+
+	max_maint_done = IntegerField("Number of rows")
+	recs = FieldList(FormField(MaintDownloadedRowForm))
+	submit = SubmitField('Delete')

@@ -6,10 +6,11 @@ import sys
 import jinja2.utils
 import jinja2.filters
 import youtube_dl
+from wtforms import IntegerField, StringField, PasswordField, BooleanField, SubmitField
 from flask import render_template, flash, redirect, request, session
 import config, downloader
 from app import app
-from app.forms import LoginForm, DownloadForm, SettingsForm
+from app.forms import LoginForm, DownloadForm, SettingsForm, MaintDownloadedForm
 from subprocess import Popen, PIPE
 from os import path
 import db_stg
@@ -163,6 +164,38 @@ def get_log_stg(rowid):
 		log_str = 'Nothing logged'
 	context = {'rowid': rowid, 'log': log_str}
 	return render_template("log.html", title="Log", context=context)
+
+@app.route('/maint/downloaded', methods=['GET', 'POST'])
+def maint_downloaded():
+	done_recs = db_stg.Stg().get_done_status(session.get('max_maint_done', 100))
+	if request.method == 'GET':
+		form = MaintDownloadedForm(max_maint_done=session.get('max_maint_done', 100), recs=done_recs)
+	else:
+		form = MaintDownloadedForm(request.form, recs=done_recs)
+	if form.validate_on_submit():
+		session['max_maint_done'] = form.max_maint_done.data
+		msg = submit_maint_downloads(form)
+		if msg is not None:
+			flash(msg)
+		return redirect('/maint/downloaded')
+	if len(form.errors) > 0:
+		flash("Please fix the problems and try again.")
+	return render_template('maint-downloaded.html', title='Maintain Downloaded Records', form=form, done_recs=done_recs)
+
+def submit_maint_downloads(form):
+	msg = None
+	cnt = 0
+	stg = db_stg.Stg()
+	for rec in form.recs.entries:
+		if rec.selected.data:
+			cnt += 1
+			rowid = rec.rowid.data
+			deleted = stg.delete_rec(rowid)
+			if deleted != 1:
+				msg = 'Could not delete '+str(rowid)
+				return msg
+	msg = 'Deleted '+str(cnt)
+	return msg
 
 def _get_queued_context():
 	stg = db_stg.Stg()
