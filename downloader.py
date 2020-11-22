@@ -69,6 +69,11 @@ class DownloadThread(Thread):
 		super().__init__()
 		self.stg_id = stg_id
 		self.callback = callback
+		self.url = url
+		self.log = ""
+		self.ytdl = None
+		self.title = None
+		self.exception = None
 		self.progress = None
 		self.logger = logging.getLogger(self.getName())
 		self.log_stream = StringIO()
@@ -78,23 +83,25 @@ class DownloadThread(Thread):
 		opts = ytdl_opts.copy()
 		opts['logger'] = self.logger
 		ytdl = youtube_dl.youtube_dl.YoutubeDL(opts)
-		info = ytdl.extract_info(url, download=False)
-		self.title = None
-		if 'title' in info:
-			self.title = info['title']
-		ytdl.add_progress_hook(self.progress_callback)
-		self.ytdl = ytdl
-		self.url = url
-		self.log = ""
+		try:
+			info = ytdl.extract_info(url, download=False)
+			if 'title' in info:
+				self.title = info['title']
+			ytdl.add_progress_hook(self.progress_callback)
+			self.ytdl = ytdl
+		except Exception as exc:
+			self.exception = exc
+			print(str(exc))
 
 	def get_logger(self):
 		return self.logger
 
 	def run(self):
-		try:
-			self.ytdl.download([self.url])
-		except Exception as exc:
-			print(str(exc))
+		if self.ytdl is not None:
+			try:
+				self.ytdl.download([self.url])
+			except Exception as exc:
+				print(str(exc))
 		self.log = self.log_stream.getvalue()
 		self.log_stream.close()
 		self.callback(thread=self, data={})
