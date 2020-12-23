@@ -25,6 +25,8 @@ class Downloader(object):
 			}]
 			#ytdl_opts["extractaudio"] = True
 			#ytdl_opts["audioformat"] = "best"
+		if True: #TODO: FIX THIS
+			ytdl_opts['proxy'] = 'https://192.168.1.13/'
 		url = form.url.data
 		Config.instance().MAX_CONCURRENT_DL = form.max_dl.data
 		stg = db_stg.Stg()
