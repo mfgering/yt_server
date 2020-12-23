@@ -23,7 +23,8 @@ def download():
 		form = DownloadForm(dl_dir=session.get('dl_dir', config.Config.instance().DEFAULT_DOWNLOAD_DIR),
 							dl_patt=session.get('dl_patt', config.Config.instance().DEFAULT_DOWNLOAD_NAME_PATTERN),
 							x_audio=session.get('x_audio', False),
-							max_dl=session.get('max_dl', config.Config.instance().MAX_CONCURRENT_DL))
+							max_dl=session.get('max_dl', config.Config.instance().MAX_CONCURRENT_DL),
+							use_proxy=session.get('use_proxy', True))
 	else:
 		form = DownloadForm(request.form)
 	if form.validate_on_submit():
@@ -31,6 +32,7 @@ def download():
 		session['dl_patt'] = form.dl_patt.data
 		session['x_audio'] = form.x_audio.data
 		session['max_dl'] = form.max_dl.data
+		session['use_proxy'] = form.use_proxy
 		msg = downloader.Downloader.submit_download(form)
 		if msg is not None:
 			flash(msg)
@@ -50,7 +52,9 @@ def settings():
 							dl_patt=session.get('dl_patt', config.Config.instance().DEFAULT_DOWNLOAD_NAME_PATTERN),
 							x_audio=session.get('x_audio', False),
 							max_dl=session.get('max_dl', config.Config.instance().MAX_CONCURRENT_DL),
-							max_done=session.get('max_done', config.Config.instance().MAX_DONE))
+							max_done=session.get('max_done', config.Config.instance().MAX_DONE),
+							proxy_url=session.get('proxy_url', config.Config.instance().PROXY_URL)
+							)
 	else:
 		form = SettingsForm(request.form)
 	if form.validate_on_submit():
@@ -59,6 +63,7 @@ def settings():
 		cfg.DEFAULT_DOWNLOAD_NAME_PATTERN = session['dl_patt'] = form.dl_patt.data
 		cfg.MAX_CONCURRENT_DL = session['max_dl'] = form.max_dl.data
 		cfg.MAX_DONE = session['max_done'] = form.max_done.data
+		cfg.PROXY_URL = session['proxy_url'] = form.proxy_url.data
 		msg = submit_settings(form)
 		if msg is not None:
 			flash(msg)
