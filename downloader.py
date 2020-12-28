@@ -91,6 +91,7 @@ class DownloadThread(Thread):
 		self.logger.setLevel(logging.DEBUG)
 		opts = ytdl_opts.copy()
 		opts['logger'] = self.logger
+		self.dump_dl_opts(opts)
 		ytdl = youtube_dl.youtube_dl.YoutubeDL(opts)
 		try:
 			info = ytdl.extract_info(url, download=False)
@@ -123,3 +124,11 @@ class DownloadThread(Thread):
 		if len(self.log) == 0:
 			self.log = self.log_stream.getvalue()
 		return self.log
+
+	def dump_dl_opts(self, opts):
+		opt_str = StringIO()
+		opt_str.write("Options:\n")
+		for k in sorted(opts.keys()):
+			opt_str.write(f"    {k}: {str(opts[k])}\n")
+		self.logger.info(str(opt_str.getvalue()))
+		opt_str.close()

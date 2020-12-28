@@ -32,7 +32,7 @@ def download():
 		session['dl_patt'] = form.dl_patt.data
 		session['x_audio'] = form.x_audio.data
 		session['max_dl'] = form.max_dl.data
-		session['use_proxy'] = form.use_proxy
+		session['use_proxy'] = form.use_proxy.data
 		msg = downloader.Downloader.submit_download(form)
 		if msg is not None:
 			flash(msg)
