@@ -18,6 +18,7 @@ class Downloader(object):
 		ytdl_opts['ffmpeg_location'] = Config.instance().FFMPEG_LOCATION
 		ytdl_opts['restrictfilenames'] = Config.instance().RESTRICT_FILENAMES
 		ytdl_opts['no-cache-dir'] = True
+		ytdl_opts['no-playlist'] = True
 		#ytdl_opts['verbose'] = True
 		if form.x_audio.data:
 			ytdl_opts['postprocessors'] = [{
