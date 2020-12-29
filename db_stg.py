@@ -129,6 +129,16 @@ class Stg(object):
 		status = self._make_dict(keys, recs)
 		return status
 
+	def get_queued_status(self):
+		keys = ['rowid', 'queued_time', 'url', 'title']
+		sql = 'select '+', '.join(keys)+' from downloads where queued_time is not null and run_time is null and done_time is null order by rowid desc'
+		conn = self.get_connection()
+		cur = conn.execute(sql)
+		recs = cur.fetchall()
+		cur.close()
+		status = self._make_dict(keys, recs)
+		return status
+
 	def _make_dict(self, keys, recs):
 		status = []
 		for row in recs:

@@ -10,7 +10,7 @@ from wtforms import IntegerField, StringField, PasswordField, BooleanField, Subm
 from flask import render_template, flash, redirect, request, session
 import config, downloader
 from app import app
-from app.forms import LoginForm, DownloadForm, SettingsForm, MaintDownloadedForm
+from app.forms import LoginForm, DownloadForm, SettingsForm, MaintDownloadedForm, MaintQueuedForm
 from subprocess import Popen, PIPE
 from os import path
 import db_stg
@@ -179,7 +179,7 @@ def maint_downloaded():
 		form = MaintDownloadedForm(request.form, recs=done_recs)
 	if form.validate_on_submit():
 		session['max_maint_done'] = form.max_maint_done.data
-		msg = submit_maint_downloads(form)
+		msg = submit_maint_queued_downloads(form)
 		if msg is not None:
 			flash(msg)
 		return redirect('/maint/downloaded')
@@ -187,7 +187,23 @@ def maint_downloaded():
 		flash("Please fix the problems and try again.")
 	return render_template('maint-downloaded.html', title='Maintain Downloaded Records', form=form, done_recs=done_recs)
 
-def submit_maint_downloads(form):
+@app.route('/maint/queued', methods=['GET', 'POST'])
+def maint_queued():
+	queued_recs = db_stg.Stg().get_queued_status()
+	if request.method == 'GET':
+		form = MaintQueuedForm(max_maint_done=session.get('max_maint_done', 100), recs=queued_recs)
+	else:
+		form = MaintQueuedForm(request.form, recs=queued_recs)
+	if form.validate_on_submit():
+		msg = submit_maint_queued_downloads(form)
+		if msg is not None:
+			flash(msg)
+		return redirect('/maint/queued')
+	if len(form.errors) > 0:
+		flash("Please fix the problems and try again.")
+	return render_template('maint-queued.html', title='Maintain Queued Records', form=form)
+
+def submit_maint_queued_downloads(form):
 	msg = None
 	cnt = 0
 	stg = db_stg.Stg()

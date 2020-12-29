@@ -65,8 +65,19 @@ class MaintDownloadedRowForm(FlaskForm):
 	filename = StringField("Filename")
 	filesize = StringField("Total Bytes")
 
-class MaintDownloadedForm(FlaskForm):
+class MaintQueuedRowForm(FlaskForm):
+# ['rowid', 'queued_time', 'url', 'title', 'log']
+	selected = BooleanField("Selected")
+	rowid = IntegerField("ID")
+	queued_time = StringField("Queued")
+	url = StringField("URL")
+	title = StringField("Title")
 
+class MaintDownloadedForm(FlaskForm):
 	max_maint_done = IntegerField("Number of rows")
 	recs = FieldList(FormField(MaintDownloadedRowForm))
+	submit = SubmitField('Delete')
+
+class MaintQueuedForm(FlaskForm):
+	recs = FieldList(FormField(MaintQueuedRowForm))
 	submit = SubmitField('Delete')
